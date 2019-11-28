@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImgToSmallerImg", "ImgToSmallerImg\ImgToSmallerImg.csproj", "{259959AE-CA3E-4F90-B613-58EE3BB7C4D3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{259959AE-CA3E-4F90-B613-58EE3BB7C4D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{259959AE-CA3E-4F90-B613-58EE3BB7C4D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{259959AE-CA3E-4F90-B613-58EE3BB7C4D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{259959AE-CA3E-4F90-B613-58EE3BB7C4D3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

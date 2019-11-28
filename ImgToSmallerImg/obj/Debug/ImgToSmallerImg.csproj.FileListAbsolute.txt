@@ -1,0 +1,6 @@
+D:\Konrad\Programy\ImgToSmallerImg\ImgToSmallerImg\bin\Debug\ImgToSmallerImg.exe
+D:\Konrad\Programy\ImgToSmallerImg\ImgToSmallerImg\bin\Debug\ImgToSmallerImg.pdb
+D:\Konrad\Programy\ImgToSmallerImg\ImgToSmallerImg\obj\Debug\ImgToSmallerImg.csprojAssemblyReference.cache
+D:\Konrad\Programy\ImgToSmallerImg\ImgToSmallerImg\obj\Debug\ImgToSmallerImg.csproj.CoreCompileInputs.cache
+D:\Konrad\Programy\ImgToSmallerImg\ImgToSmallerImg\obj\Debug\ImgToSmallerImg.exe
+D:\Konrad\Programy\ImgToSmallerImg\ImgToSmallerImg\obj\Debug\ImgToSmallerImg.pdb
