@@ -4,3 +4,9 @@ D:\Konrad\Programy\ImgToSmallerImg\ImgToSmallerImg\obj\Debug\ImgToSmallerImg.csp
 D:\Konrad\Programy\ImgToSmallerImg\ImgToSmallerImg\obj\Debug\ImgToSmallerImg.csproj.CoreCompileInputs.cache
 D:\Konrad\Programy\ImgToSmallerImg\ImgToSmallerImg\obj\Debug\ImgToSmallerImg.exe
 D:\Konrad\Programy\ImgToSmallerImg\ImgToSmallerImg\obj\Debug\ImgToSmallerImg.pdb
+D:\Konrad\Projekty\ImgToSmallerImg\ImgToSmallerImg\bin\Debug\ImgToSmallerImg.exe
+D:\Konrad\Projekty\ImgToSmallerImg\ImgToSmallerImg\bin\Debug\ImgToSmallerImg.pdb
+D:\Konrad\Projekty\ImgToSmallerImg\ImgToSmallerImg\obj\Debug\ImgToSmallerImg.csprojAssemblyReference.cache
+D:\Konrad\Projekty\ImgToSmallerImg\ImgToSmallerImg\obj\Debug\ImgToSmallerImg.csproj.CoreCompileInputs.cache
+D:\Konrad\Projekty\ImgToSmallerImg\ImgToSmallerImg\obj\Debug\ImgToSmallerImg.exe
+D:\Konrad\Projekty\ImgToSmallerImg\ImgToSmallerImg\obj\Debug\ImgToSmallerImg.pdb
