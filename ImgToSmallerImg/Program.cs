@@ -10,42 +10,61 @@ namespace ImgToSmallerImg
     {
         public static void Main(string[] args)
         {
-            var texts = new string[2];
-            bool first, second;
-            do
+            TryAgain:
+
+            // setting default values
+            string text = "3", path = "D:\\a.jpg";
+
+            // if you want to set them in cli comment this goto
+            goto Skip;
+
+
+            // choose binning mode
+            Console.WriteLine("Choose mode:");
+            Console.WriteLine("1. 2x2");
+            Console.WriteLine("2. 3x3");
+            Console.WriteLine("3. 4x4");
+            text = Console.ReadLine();
+
+            // if everything is alright pass, else do again
+            if (!int.TryParse(text, out _))
             {
                 Console.Clear();
-                Console.WriteLine("---- Binning image ----");
-                Console.WriteLine();
+                goto TryAgain;
+            }
 
-                Console.WriteLine("Enter path to file:");
-                texts[0] = Console.ReadLine();
-                first = CheckPath(texts[0]);
+            // get file path
+            Console.WriteLine("Path to file:");
+            path = Console.ReadLine();
 
-                Console.WriteLine();
-                Console.WriteLine("Output size:");
-
-                texts[1] = Console.ReadLine();
-                second = int.TryParse(texts[1], out var result);
-
+            // if everything is alright pass, else do again
+            if (!CheckPath(path))
+            {
                 Console.Clear();
-            } while (!first || !second);
+                goto TryAgain;
+            }
 
-            var image = Image.FromFile(texts[0]);
-            var bitmapSize = int.Parse(texts[1]);
+            Skip:
+            var binningNum = int.Parse(text) + 1;
+
+            var image = Image.FromFile(path);
+            var bitmapSizeHeight = image.Height / binningNum;
+            var bitmapSizeWidth = image.Width / binningNum;
             var bitmap = (Bitmap) image;
 
-            var sectorSizeH = image.Height / bitmapSize;
-            var sectorSizeW = image.Width / bitmapSize;
 
-            var newBitmap = new Bitmap(bitmapSize, bitmapSize);
+            var newBitmap = new Bitmap(bitmapSizeWidth, bitmapSizeHeight);
 
-            for (var i = 0; i < newBitmap.Height; i++)
-            for (var j = 0; j < newBitmap.Width; j++)
-                newBitmap.SetPixel(i, j, GetAverageColor(bitmap, sectorSizeH * j, sectorSizeH * j + sectorSizeH,
-                    sectorSizeW * i, sectorSizeW * i + sectorSizeW));
+            for (var i = 0; i < newBitmap.Width - 1; i++)
+            for (var j = 0; j < newBitmap.Height - 1; j++)
+                newBitmap.SetPixel(i, j, GetAverageColorUnsafe(bitmap, binningNum * j, binningNum * j + binningNum,
+                    binningNum * i, binningNum * i + binningNum));
 
-            newBitmap.Save("Binned.jpeg", ImageFormat.Bmp);
+            var finalImage = newBitmap;
+
+            var format = new ImageFormat(image.RawFormat.Guid);
+
+            finalImage.Save("Binned" + Path.GetExtension(path), format);
         }
 
         private static bool CheckPath(string text)
@@ -56,26 +75,74 @@ namespace ImgToSmallerImg
 
         private static Color GetAverageColor(Bitmap bitmap, int fromHeight, int toHeight, int fromWidth, int toWidth)
         {
-            ulong red = 0, green = 0, blue = 0, alpha = 0, pixNum = 1;
+            double red = 0, green = 0, blue = 0, alpha = 0, pixNum = 1;
 
             for (var i = fromWidth; i < toWidth; i++)
             for (var j = fromHeight; j < toHeight; j++)
             {
                 var pixel = bitmap.GetPixel(i, j);
-                red += pixel.R;
-                green += pixel.G;
-                blue += pixel.B;
-                alpha += pixel.A;
+                red += Math.Pow(pixel.R, 2);
+                green += Math.Pow(pixel.G, 2);
+                blue += Math.Pow(pixel.B, 2);
+                alpha += Math.Pow(pixel.A, 2);
 
                 pixNum++;
             }
 
-            red /= pixNum;
-            green /= pixNum;
-            blue /= pixNum;
-            alpha /= pixNum;
+            pixNum--;
+
+            red = red / pixNum;
+            red = Math.Sqrt(red);
+
+            green = green / pixNum;
+            green = Math.Sqrt(green);
+
+            blue = blue / pixNum;
+            blue = Math.Sqrt(blue);
+
+            alpha = alpha / pixNum;
+            alpha = Math.Sqrt(alpha);
 
             return Color.FromArgb((int) alpha, (int) red, (int) green, (int) blue);
+        }
+
+        private static Color GetAverageColorUnsafe(Bitmap bm, int fromHeight, int toHeight, int fromWidth, int toWidth)
+        {
+            long[] totals = {0, 0, 0};
+            var bppModifier =
+                bm.PixelFormat == PixelFormat.Format24bppRgb
+                    ? 3
+                    : 4; // cutting corners, will fail on anything else but 32 and 24 bit images
+
+            var srcData = bm.LockBits(new Rectangle(0, 0, bm.Width, bm.Height), ImageLockMode.ReadOnly, bm.PixelFormat);
+            var stride = srcData.Stride;
+            var scan0 = srcData.Scan0;
+
+            unsafe
+            {
+                var p = (byte*) (void*) scan0;
+
+                for (var y = fromHeight; y < toHeight; y++)
+                for (var x = fromWidth; x < toWidth; x++)
+                {
+                    var idx = y * stride + x * bppModifier;
+                    int red = p[idx + 2];
+                    int green = p[idx + 1];
+                    int blue = p[idx];
+                    totals[2] += red;
+                    totals[1] += green;
+                    totals[0] += blue;
+                }
+            }
+
+            var count = (toWidth - fromWidth) * (toHeight - fromHeight);
+            var avgR = (int) (totals[2] / count);
+            var avgG = (int) (totals[1] / count);
+            var avgB = (int) (totals[0] / count);
+
+            bm.UnlockBits(srcData);
+
+            return Color.FromArgb(avgR, avgG, avgB);
         }
     }
 }
