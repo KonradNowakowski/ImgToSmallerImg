@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -10,42 +11,42 @@ namespace ImgToSmallerImg
     {
         public static void Main(string[] args)
         {
-            TryAgain:
-
             // setting default values
-            string text = "3", path = "D:\\a.jpg";
+            var binningNum = 3;
+            string input;
+            var path = "a.jpg";
 
-            // if you want to set them in cli comment this goto
-            goto Skip;
-
-
-            // choose binning mode
-            Console.WriteLine("Choose mode:");
-            Console.WriteLine("1. 2x2");
-            Console.WriteLine("2. 3x3");
-            Console.WriteLine("3. 4x4");
-            text = Console.ReadLine();
-
-            // if everything is alright pass, else do again
-            if (!int.TryParse(text, out _))
+            do
             {
-                Console.Clear();
-                goto TryAgain;
-            }
+                Console.WriteLine("Would you like to use default values? \n Y or N");
+                input = Console.ReadLine();
+                input = input.ToLower();
 
-            // get file path
-            Console.WriteLine("Path to file:");
-            path = Console.ReadLine();
+            } while (input != "n" && input != "n");
 
-            // if everything is alright pass, else do again
-            if (!CheckPath(path))
+            if (input == "n")
             {
-                Console.Clear();
-                goto TryAgain;
+                do
+                {
+                    // Choose how many pixels are going to be transformed into one
+                    Console.WriteLine("Choose mode:");
+                    Console.WriteLine("1. 2x2");
+                    Console.WriteLine("2. 3x3");
+                    Console.WriteLine("3. 4x4");
+                    input = Console.ReadLine();
+                
+                } while (input != null && !int.TryParse(input, out _));
+                
+                binningNum = int.Parse(input) + 1;
+                
+                do
+                {
+                    // get file path
+                    Console.WriteLine("Path to file:");
+                    path = Console.ReadLine();
+                
+                } while (path != null && !CheckPath(path));
             }
-
-            Skip:
-            var binningNum = int.Parse(text) + 1;
 
             var image = Image.FromFile(path);
             var bitmapSizeHeight = image.Height / binningNum;
@@ -64,7 +65,7 @@ namespace ImgToSmallerImg
 
             var format = new ImageFormat(image.RawFormat.Guid);
 
-            finalImage.Save("Binned" + Path.GetExtension(path), format);
+            finalImage.Save($"Binned {Path.GetExtension(path)}", format);
         }
 
         private static bool CheckPath(string text)
@@ -108,11 +109,10 @@ namespace ImgToSmallerImg
 
         private static Color GetAverageColorUnsafe(Bitmap bm, int fromHeight, int toHeight, int fromWidth, int toWidth)
         {
-            long[] totals = {0, 0, 0};
+            var totals = new long[] {0, 0, 0};
             var bppModifier =
-                bm.PixelFormat == PixelFormat.Format24bppRgb
-                    ? 3
-                    : 4; // cutting corners, will fail on anything else but 32 and 24 bit images
+                bm.PixelFormat == PixelFormat.Format24bppRgb ? 3 : 4;
+                                // cutting corners, will fail on anything else but 32 and 24 bit images
 
             var srcData = bm.LockBits(new Rectangle(0, 0, bm.Width, bm.Height), ImageLockMode.ReadOnly, bm.PixelFormat);
             var stride = srcData.Stride;
