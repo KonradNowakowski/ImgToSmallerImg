@@ -15,9 +15,16 @@ namespace ImgToSmallerImg
         private static string _path = "a.jpg";
         private static readonly string[] Extensions =
             {"jpg", "jpeg", "jpe", "jif", "jfif", "jfi", "png", "webp", "bmp", "dib"};
-        
-        public static void Main()
+
+        public static void Main(string[] args)
         {
+            if (args.Length != 0)
+                if (args[0] == "--auto")
+                {
+                    AutomatedTransform();
+                    Environment.Exit(0);
+                }
+            
             do
             {
                 Console.Clear();
@@ -85,9 +92,9 @@ namespace ImgToSmallerImg
                     // Break when user input isn't null and can be parsed to int
                     // Passing higher number may result in unexpected behavior
                 } while (_input != null && !int.TryParse(_input, out _));
-                
+
                 _binningNum = int.Parse(_input ?? throw new NullReferenceException()) + 1;
-                
+
                 do
                 {
                     // Get path to the image
@@ -100,9 +107,9 @@ namespace ImgToSmallerImg
 
             var bitmap = CompressImage(out var image);
 
-            var temp = _path.Split('\\');
-            var name = temp[temp.Length - 1].Split('.')[0];
-            
+            var temp = _path?.Split('\\');
+            var name = temp?[temp.Length - 1].Split('.')[0];
+
             SaveImage(bitmap, new ImageFormat(image.RawFormat.Guid), false, name);
         }
 
@@ -130,7 +137,7 @@ namespace ImgToSmallerImg
                 if (!Directory.Exists("BinnedImages"))
                     Directory.CreateDirectory("BinnedImages");
 
-                bm.Save("BinnedImages" + "\\" +$"{name}{Path.GetExtension(_path)}", format);
+                bm.Save("BinnedImages" + "\\" + $"{name}{Path.GetExtension(_path)}", format);
             }
             else
             {
@@ -143,13 +150,13 @@ namespace ImgToSmallerImg
             text = Regex.Replace(text, "/", "\\");
             return File.Exists(text);
         }
-        
+
         private static Color GetAverageColorUnsafe(Bitmap bm, int fromHeight, int toHeight, int fromWidth, int toWidth)
         {
-            var totals = new long[] {0, 0, 0};
+            var totals = new long[] {0, 0, 0, 0};
             var bppModifier =
                 bm.PixelFormat == PixelFormat.Format24bppRgb ? 3 : 4;
-                                // cutting corners, will fail on anything else but 32 and 24 bit images
+            // cutting corners, will fail on anything else but 32 and 24 bit images
 
             var srcData = bm.LockBits(new Rectangle(0, 0, bm.Width, bm.Height), ImageLockMode.ReadOnly, bm.PixelFormat);
             var stride = srcData.Stride;
@@ -164,26 +171,30 @@ namespace ImgToSmallerImg
                 {
                     var idx = y * stride + x * bppModifier;
                     if (p == null) continue;
+                    int alpha = p[idx + 3];
                     int red = p[idx + 2];
                     int green = p[idx + 1];
                     int blue = p[idx];
-                    totals[2] += red;
-                    totals[1] += green;
-                    totals[0] += blue;
+                    totals[3] += alpha * alpha;
+                    totals[2] += red * red;
+                    totals[1] += green * green;
+                    totals[0] += blue * blue;
                 }
             }
 
             var count = (toWidth - fromWidth) * (toHeight - fromHeight);
-            var avgR = (int) (totals[2] / count);
-            var avgG = (int) (totals[1] / count);
-            var avgB = (int) (totals[0] / count);
+            var avgA = (int) Math.Sqrt((int) (totals[3] / count));
+            var avgR = (int) Math.Sqrt((int) (totals[2] / count));
+            var avgG = (int) Math.Sqrt((int) (totals[1] / count));
+            var avgB = (int) Math.Sqrt((int) (totals[0] / count));
 
             bm.UnlockBits(srcData);
 
-            return Color.FromArgb(avgR, avgG, avgB);
+            return Color.FromArgb(avgA, avgR, avgG, avgB);
         }
-        
+
         #region Unused
+
 /*
         private static Color GetAverageColor(Bitmap bm, int fromHeight, int toHeight, int fromWidth, int toWidth)
         {
@@ -216,7 +227,7 @@ namespace ImgToSmallerImg
             return Color.FromArgb((int) alpha, (int) red, (int) green, (int) blue);
         }
 */
-        #endregion
 
+        #endregion
     }
 }
